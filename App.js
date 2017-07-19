@@ -4,8 +4,9 @@ import { render } from 'react-dom';
 class App extends PureComponent {
 	constructor() {
 		super();
+		this.cellSize = 20;
 		this.state = {
-			size: 10,
+			size: 5,
 			world: []
 		}
 	}
@@ -15,30 +16,107 @@ class App extends PureComponent {
 	}
 
 	_populate = () => {
-		const miniWorld = new Array(this.state.size).fill(false);
-		const world = new Array(this.state.size).fill(miniWorld);
+		const world = [];
+		for (let i = 0; i < this.state.size; i++) {
+			world.push(new Array(this.state.size).fill(false));
+		}
 		this.setState({ world });
 	}
 
-	singleCell = (isAlive) => {
-		const color = isAlive ? { backgroundColor: 'white' } : { backgroundColor: 'black' };
-		const size = { height: '10px', width: '10px' };
+	play = () => {
+		this.game = setInterval(this._move, 100);
+	}
+
+	stop = () => {
+		clearInterval(this.game)
+	}
+	
+	_move = () => {
+		const world = this.state.world.slice();
+		for (let i = 0; i < world.length; i++) {
+			for (let j = 0; j < world.length; j++) {
+				world[i][j] = this._nextState(i, j);
+			}
+		}
+		this.setState({ world });
+	}
+
+	_nextState = (rowIndex, cellIndex) => {
+		const isAlive = this.state.world[rowIndex][cellIndex];
+		let numberOfNeighbours = 0;
+		const startingRow = rowIndex - 1 >= 0 ? rowIndex - 1 : rowIndex;
+		const endingRow = rowIndex + 1 < this.state.size ? rowIndex + 1 : rowIndex;
+		const startingCell = cellIndex - 1 >= 0 ? cellIndex - 1 : cellIndex;
+		const endingCell = cellIndex + 1 < this.state.size ? cellIndex + 1 : cellIndex;
+		for (let i = startingRow; i <= endingRow; i++) {
+			for (let j = startingCell; j <= endingCell; j++) {
+				if (!(i == rowIndex && j == cellIndex) && this.state.world[i][j]) {
+					numberOfNeighbours++;
+				}
+			}
+		}
+		if (isAlive && (numberOfNeighbours < 2 || numberOfNeighbours > 3)) {
+			return false;
+		} else if (!isAlive && numberOfNeighbours == 3) {
+			return true;
+		} else {
+			return isAlive;
+		}
+	}
+
+	randomize = () => {
+		const world = this.state.world.slice();
+		for (let i = 0; i < this.state.size; i++) {
+			for (let j = 0; j < this.state.size; j++) {
+				world[i][j] = Math.random() < 0.5 ? false : true;
+			}
+		}
+		this.setState({ world })
+	}
+
+	changeColor = (i, j) => {
+		const world = this.state.world.slice();
+		world[i][j] = !world[i][j];
+		this.setState({ world });
+	}
+
+	singleCell = (isAlive, i, j) => {
+		const color = isAlive ? 'white' : 'black';
+		const size = {
+			height: this.cellSize,
+			width: this.cellSize,
+			backgroundColor: color,
+			border: `1px solid grey`
+		};
 		return (
 			<div
+				key={j}
 				style={{...size, ...color}}
+				onClick={() => this.changeColor(i, j)}
 			>
 			</div>
 		)
 	}
 
-	lineOfCells = (arr) => {
-		return arr.map(cell => this.singleCell(cell));
+	lineOfCells = (arr, lineIndex) => {
+		return (
+			<div
+				key={lineIndex}
+				style={{
+					height: this.cellSize,
+					width: this.state.size * this.cellSize,
+					display: 'flex',
+				}}
+			>
+				{arr.map((cell, rowIndex) => this.singleCell(cell, lineIndex, rowIndex))}
+			</div>
+		);
 	}
 
 	render() {
-		const world = this.state.world.map(line => (
-			this.lineOfCells(line)
-		));
+		const world = this.state.world.map((line, lineIndex) => {
+			return this.lineOfCells(line, lineIndex);
+		});
 		return (
 			<div
 				style={{
@@ -46,20 +124,54 @@ class App extends PureComponent {
 					width: '100vw',
 					display: 'flex',
 					justifyContent: 'center',
-					alignItems: 'center'
+					alignItems: 'center',
+					flexDirection: 'column'
 				}}
 			>
 				<div
 					style={{
-						height: '80%',
-						width: '80%',
-						backgroundColor: 'grey'
+						height: this.state.size * this.cellSize,
+						width: this.state.size * this.cellSize,
+						display: 'flex',
+						flexDirection: 'column'
 					}}
 				>
 					{ world }
-				</div>	
+				</div>
+				<button
+					onClick={this.randomize}
+					style={styles.button}
+				>
+					Randomize
+				</button>
+				<button
+					onClick={this.play}
+					style={styles.button}
+				>
+					Play
+				</button>
+				<button
+					onClick={this.stop}
+					style={styles.button}
+				>
+					Stop
+				</button>
 			</div>
 		);
+	}
+}
+
+const styles = {
+	button: {
+		height: 40,
+		width: 100,
+		backgroundColor: 'blue',
+		marginTop: 100,
+		cursor: 'pointer',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		color: 'white'
 	}
 }
 
