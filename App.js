@@ -4,9 +4,9 @@ import { render } from 'react-dom';
 class App extends PureComponent {
 	constructor() {
 		super();
-		this.cellSize = 10;
+		this.cellSize = 20;
 		this.state = {
-			size: 50,
+			size: 10,
 			world: []
 		}
 	}
@@ -15,7 +15,12 @@ class App extends PureComponent {
 		this._populate();
 	}
 
+	_2dCopy = (arr) => {
+		return arr.map(oneD => oneD.slice());
+	}
+
 	_populate = () => {
+		clearInterval(this.game)
 		const world = [];
 		for (let i = 0; i < this.state.size; i++) {
 			world.push(new Array(this.state.size).fill(false));
@@ -24,7 +29,7 @@ class App extends PureComponent {
 	}
 
 	play = () => {
-		this.game = setInterval(this._move, 100);
+		this.game = setInterval(this._move, 1000);
 	}
 
 	stop = () => {
@@ -32,7 +37,7 @@ class App extends PureComponent {
 	}
 	
 	_move = () => {
-		const world = this.state.world.slice();
+		const world = this._2dCopy(this.state.world);
 		for (let i = 0; i < world.length; i++) {
 			for (let j = 0; j < world.length; j++) {
 				world[i][j] = this._nextState(i, j);
@@ -65,17 +70,18 @@ class App extends PureComponent {
 	}
 
 	randomize = () => {
-		const world = this.state.world.slice();
+		this.stop();
+		const world = this._2dCopy(this.state.world);
 		for (let i = 0; i < this.state.size; i++) {
 			for (let j = 0; j < this.state.size; j++) {
-				world[i][j] = Math.random() < 0.5 ? false : true;
+				world[i][j] = Math.random() < 0.9 ? false : true;
 			}
 		}
 		this.setState({ world })
 	}
 
 	changeColor = (i, j) => {
-		const world = this.state.world.slice();
+		const world = this._2dCopy(this.state.world);
 		world[i][j] = !world[i][j];
 		this.setState({ world });
 	}
@@ -151,6 +157,12 @@ class App extends PureComponent {
 						style={styles.button}
 					>
 						Stop
+					</button>
+					<button
+						onClick={this._populate}
+						style={styles.button}
+					>
+						Reset
 					</button>
 				</div>
 				<div
