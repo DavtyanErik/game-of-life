@@ -4,9 +4,9 @@ import { render } from 'react-dom';
 class App extends PureComponent {
 	constructor() {
 		super();
-		this.cellSize = 20;
+		this.cellSize = 10;
 		this.state = {
-			size: 5,
+			size: 50,
 			world: []
 		}
 	}
@@ -123,11 +123,36 @@ class App extends PureComponent {
 					height: '100vh',
 					width: '100vw',
 					display: 'flex',
-					justifyContent: 'center',
+					justifyContent: 'space-around',
 					alignItems: 'center',
-					flexDirection: 'column'
+					flexDirection: 'row'
 				}}
 			>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column'
+					}}
+				>
+					<button
+						onClick={this.randomize}
+						style={styles.button}
+					>
+						Randomize
+					</button>
+					<button
+						onClick={this.play}
+						style={styles.button}
+					>
+						Play
+					</button>
+					<button
+						onClick={this.stop}
+						style={styles.button}
+					>
+						Stop
+					</button>
+				</div>
 				<div
 					style={{
 						height: this.state.size * this.cellSize,
@@ -138,24 +163,6 @@ class App extends PureComponent {
 				>
 					{ world }
 				</div>
-				<button
-					onClick={this.randomize}
-					style={styles.button}
-				>
-					Randomize
-				</button>
-				<button
-					onClick={this.play}
-					style={styles.button}
-				>
-					Play
-				</button>
-				<button
-					onClick={this.stop}
-					style={styles.button}
-				>
-					Stop
-				</button>
 			</div>
 		);
 	}
@@ -166,7 +173,7 @@ const styles = {
 		height: 40,
 		width: 100,
 		backgroundColor: 'blue',
-		marginTop: 100,
+		marginTop: 10,
 		cursor: 'pointer',
 		display: 'flex',
 		alignItems: 'center',
