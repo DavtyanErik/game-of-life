@@ -6,7 +6,7 @@ class App extends PureComponent {
 		super();
 		this.cellSize = 20;
 		this.state = {
-			size: 10,
+			size: 30,
 			world: []
 		}
 	}
@@ -20,7 +20,7 @@ class App extends PureComponent {
 	}
 
 	_populate = () => {
-		clearInterval(this.game)
+		this.stop()
 		const world = [];
 		for (let i = 0; i < this.state.size; i++) {
 			world.push(new Array(this.state.size).fill(false));
@@ -29,7 +29,7 @@ class App extends PureComponent {
 	}
 
 	play = () => {
-		this.game = setInterval(this._move, 1000);
+		this.game = setInterval(this._move, 100);
 	}
 
 	stop = () => {
@@ -74,7 +74,7 @@ class App extends PureComponent {
 		const world = this._2dCopy(this.state.world);
 		for (let i = 0; i < this.state.size; i++) {
 			for (let j = 0; j < this.state.size; j++) {
-				world[i][j] = Math.random() < 0.9 ? false : true;
+				world[i][j] = Math.random() < 0.8 ? false : true;
 			}
 		}
 		this.setState({ world })
